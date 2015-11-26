@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by msaidi on 11/26/15.
  */
-public class SelectOnBeerN1QL {
+public class SelectOnBeerN1QLSyncMode {
     private Bucket beerSample;
     private CouchbaseCluster cluster;
 
