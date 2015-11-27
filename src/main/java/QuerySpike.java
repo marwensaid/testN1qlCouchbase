@@ -146,8 +146,8 @@ public class QuerySpike {
 
     // Given a bucket, get a list of objects containing the information about the
     // indexes in the bucket
-    public static List<IndexInfo> getIndexInfoList(Bucket b) {
-        return getIndexInfoListFromQueryRowList(queryOnSystem(b, "indexes"));
+    public static List<IndexInfo> getIndexInfoList(Bucket bucket) {
+        return getIndexInfoListFromQueryRowList(queryOnSystem(bucket, "indexes"));
     }
 
     // Given a list of query rows, print the raw json for each
@@ -155,8 +155,8 @@ public class QuerySpike {
         JsonObject eachJsonObject = null;
         int i = 0;
 
-        for (N1qlQueryRow qr : listOfQueryRow) {
-            eachJsonObject = qr.value();
+        for (N1qlQueryRow query : listOfQueryRow) {
+            eachJsonObject = query.value();
             System.out.printf("%2d : %10s\n", i, eachJsonObject);
             i++;
         }
@@ -173,8 +173,8 @@ public class QuerySpike {
         int i = 0;
         String eachNamespaceName = null;
 
-        for (N1qlQueryRow qr : namespaceList) {
-            eachJsonObject = qr.value();
+        for (N1qlQueryRow query : namespaceList) {
+            eachJsonObject = query.value();
             eachNamespaceObject = eachJsonObject.getObject("namespaces");
             eachNamespaceName = eachNamespaceObject.getString("name");
             System.out.printf("%2d : %10s\n", i, eachNamespaceName);
@@ -191,8 +191,8 @@ public class QuerySpike {
         int i = 0;
         String eachDatastoreId = null;
 
-        for (N1qlQueryRow qr : datastoreList) {
-            eachJsonObject = qr.value();
+        for (N1qlQueryRow query : datastoreList) {
+            eachJsonObject = query.value();
             eachDatastoreObject = eachJsonObject.getObject("datastores");
             eachDatastoreId = eachDatastoreObject.getString("id");
             System.out.printf("%2d : %10s\n", i, eachDatastoreId);
