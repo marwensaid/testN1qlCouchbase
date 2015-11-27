@@ -1,4 +1,6 @@
 import com.couchbase.client.java.Bucket;
+import com.couchbase.client.java.Cluster;
+import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlMetrics;
 import com.couchbase.client.java.query.N1qlQuery;
@@ -88,6 +90,8 @@ public class QuerySpike {
         }
 
     }
+
+
 
     public static Hashtable<String,Integer> queryRowListToHashtable(List<N1qlQueryRow> listOfQueryRow, String keyColName, String valColName) {
         // Given query results and the name of the key column and the name of the
@@ -201,5 +205,82 @@ public class QuerySpike {
 
     }
 
+    // main() method for this class
+    public static void main(String[] args) {
+
+        long t1 = 0, t2 = 0;
+
+        t1 = System.currentTimeMillis();
+
+        printCenteredBanner("Welcome to QuerySpike");
+
+        final String hostName   = "127.0.0.1:8091";
+        final String bucketName = "travel-sample";
+
+        Cluster cluster = null;
+
+        try {
+            cluster = CouchbaseCluster.create(hostName);
+        }
+        catch (Exception e) {
+            System.err.println("Exception while creating connection to Couchbase cluster at " + hostName + ".");
+            System.exit(1);
+        }
+
+        if (cluster == null) {
+            System.err.println("Failed to create a connection to Couchbase cluster at " + hostName + ".");
+            System.exit(1);
+        }
+
+        System.err.println("About to open bucket...");
+
+        Bucket bucket = null;
+
+        try {
+            bucket = cluster.openBucket(bucketName);
+
+        }
+        catch (Exception e) {
+            System.err.println("Failed to open bucket.");
+            System.exit(1);
+        }
+
+        printCenteredBanner("Opened bucket " + bucketName + ".");
+
+        printCenteredBanner("About to get list of namespaces");
+        List<N1qlQueryRow> namespaceList = getListOfNamespaces(bucket);
+        System.out.println("Retrieved a list of namespaces and found that there are " + namespaceList.size() + " namespaces.");
+        printListOfNamespaces(namespaceList);
+
+        printCenteredBanner("About to get list of datastores");
+        List<N1qlQueryRow> datastoreList = getListOfDatastores(bucket);
+        System.out.println("Retrieved a list of datastores and found that there are " + datastoreList.size() + " datastores.");
+        printListOfDatastores(datastoreList);
+
+        printCenteredBanner("About to get list of airlines");
+        List<N1qlQueryRow> listOfAirlines = getListOfAirlines(bucket);
+        System.out.println("Retrieved a list of airlines and found that there are " + listOfAirlines.size() + " airlines.");
+
+        printCenteredBanner("About to get list of indexes");
+        printIndexInfoList(getIndexInfoList(bucket));		// example of using GSON
+
+        printCenteredBanner("About to get cardinality of the 'type' field");
+        List<N1qlQueryRow> groupByResults = queryToListOfQueryRow(bucket, "select type,count(1) as count from `travel-sample` group by type;");
+        Hashtable<String,Integer> resultsHashtable = queryRowListToHashtable(groupByResults, "type", "count");
+        printHashtable(resultsHashtable);
+
+        // printRawJson(queryToListOfQueryRow(bucket, "select type,count(1) as count from `travel-sample` group by type;"));
+
+        // TODO:  How does performance change during a rebalance?
+        // TODO:  How does performance change when an index is created?
+
+        t2 = System.currentTimeMillis();
+
+        System.out.println("Now leaving QueryTest.  Total run time was " + (t2 - t1 ) +  "ms. Goodbye.");
+
+    }
 
 }
+
+
+
